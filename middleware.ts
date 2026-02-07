@@ -7,25 +7,28 @@ const defaultLocale = 'ar';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // استثناء الملفات العامة وملفات النظام فوراً
+  if (
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/static') ||
+    pathname.includes('.') ||
+    pathname === '/favicon.ico'
+  ) {
+    return NextResponse.next();
+  }
+
   // التحقق مما إذا كان المسار يحتوي بالفعل على لغة مدعومة
   const pathnameHasLocale = locales.some(
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
 
-  if (pathnameHasLocale) return;
-
-  // استثناء الملفات العامة (public) وملفات النظام
-  if (
-    pathname.startsWith('/_next') ||
-    pathname.includes('.') ||
-    pathname.startsWith('/api')
-  ) {
-    return;
-  }
+  if (pathnameHasLocale) return NextResponse.next();
 
   // إعادة التوجيه إلى اللغة الافتراضية
-  request.nextUrl.pathname = `/${defaultLocale}${pathname}`;
-  return NextResponse.redirect(request.nextUrl);
+  const url = request.nextUrl.clone();
+  url.pathname = `/${defaultLocale}${pathname}`;
+  return NextResponse.redirect(url);
 }
 
 export const config = {
