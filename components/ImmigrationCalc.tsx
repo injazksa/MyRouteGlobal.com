@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Trophy } from 'lucide-react';
+import { Trophy, Calculator, FileText } from 'lucide-react';
 import { calculateCRSScore } from '@/lib/utils';
 import { jsPDF } from "jspdf";
 
@@ -34,28 +34,64 @@ export default function ImmigrationCalc() {
   };
 
   return (
-    <div className="bg-primary text-white p-8 rounded-2xl shadow-2xl max-w-3xl mx-auto my-8">
-      <h2 className="text-3xl font-bold text-yellow-400 flex items-center gap-3 mb-8">
-        <Trophy size={32} /> حاسبة نقاط الهجرة الكندية (CRS)
-      </h2>
-      <div className="space-y-6">
-        <div>
-          <label className="block mb-3 font-medium">العمر: {age}</label>
-          <input type="range" min="18" max="65" value={age} onChange={(e) => setAge(Number(e.target.value))} className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer" />
+    <div className="bg-primary text-white p-6 md:p-10 rounded-3xl shadow-2xl max-w-3xl mx-auto my-8 border border-white/10">
+      <div className="flex items-center gap-4 mb-10">
+        <div className="p-3 bg-yellow-400 rounded-2xl">
+          <Trophy size={32} className="text-primary" />
         </div>
         <div>
-          <label className="block mb-3 font-medium">التعليم</label>
-          <select className="w-full p-3 bg-slate-800 rounded-lg text-white border border-slate-700" onChange={(e) => setEducation(Number(e.target.value))}>
+          <h2 className="text-2xl md:text-3xl font-bold text-yellow-400">حاسبة نقاط الهجرة</h2>
+          <p className="text-slate-300 text-sm">نظام التصنيف الشامل (CRS) لكندا</p>
+        </div>
+      </div>
+
+      <div className="space-y-8">
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <label className="font-semibold text-lg">العمر</label>
+            <span className="px-4 py-1 bg-yellow-400/20 text-yellow-400 rounded-full font-bold">{age} سنة</span>
+          </div>
+          <input 
+            type="range" 
+            min="18" 
+            max="65" 
+            value={age} 
+            onChange={(e) => setAge(Number(e.target.value))} 
+            className="w-full h-3 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-yellow-400" 
+          />
+        </div>
+
+        <div className="space-y-3">
+          <label className="block font-semibold text-lg">المستوى التعليمي</label>
+          <select 
+            className="w-full p-4 bg-slate-800 rounded-xl text-white border-2 border-slate-700 focus:border-yellow-400 outline-none transition-all appearance-none" 
+            onChange={(e) => setEducation(Number(e.target.value))}
+          >
             <option value="5">شهادة ثانوية</option>
-            <option value="22">درجة جامعية</option>
-            <option value="25">درجة ماجستير</option>
+            <option value="22">درجة جامعية (بكالوريوس)</option>
+            <option value="25">درجة ماجستير أو دكتوراه</option>
           </select>
         </div>
-        <button onClick={handleCalculate} className="w-full bg-yellow-500 text-black font-bold py-4 rounded-xl hover:bg-yellow-600 transition-all text-lg">احسب النقاط الآن</button>
+
+        <button 
+          onClick={handleCalculate} 
+          className="w-full bg-yellow-400 text-primary font-black py-5 rounded-2xl hover:bg-yellow-500 transition-all text-xl shadow-lg shadow-yellow-400/10 flex items-center justify-center gap-3 active:scale-[0.98]"
+        >
+          <Calculator size={24} />
+          احسب النقاط الآن
+        </button>
+
         {score !== null && (
-          <div className="mt-8 p-6 bg-slate-800 rounded-xl border-2 border-yellow-400 text-center">
-            <div className="text-5xl font-bold text-yellow-400 mb-4">{score}</div>
-            <button onClick={downloadPDF} className="mt-4 flex items-center justify-center gap-2 w-full py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-all">تحميل التقرير كـ PDF 📄</button>
+          <div className="mt-10 p-8 bg-slate-800/50 rounded-3xl border-2 border-dashed border-yellow-400/50 text-center animate-in zoom-in duration-300">
+            <p className="text-slate-400 mb-2 font-medium">مجموع نقاطك المقدر هو</p>
+            <div className="text-6xl font-black text-yellow-400 mb-6 drop-shadow-sm">{score}</div>
+            <button 
+              onClick={downloadPDF} 
+              className="flex items-center justify-center gap-2 w-full py-4 bg-white text-primary font-bold rounded-xl hover:bg-slate-100 transition-all shadow-md"
+            >
+              <FileText size={20} />
+              تحميل التقرير التفصيلي (PDF)
+            </button>
           </div>
         )}
       </div>

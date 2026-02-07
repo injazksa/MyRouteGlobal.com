@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getCountries, getVisaRules } from '@/lib/supabase';
-import { Plane, Loader2 } from 'lucide-react';
+import { Plane, Loader2, MapPin, Globe2 } from 'lucide-react';
 
 export default function VisaTool() {
   const [countries, setCountries] = useState<any[]>([]);
@@ -49,39 +49,84 @@ export default function VisaTool() {
   };
 
   return (
-    <div className="bg-white p-8 rounded-2xl shadow-xl border border-gray-100 max-w-3xl mx-auto my-8">
+    <div className="bg-white p-5 md:p-8 rounded-2xl shadow-xl border border-gray-100 max-w-3xl mx-auto my-6 md:my-8">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-primary flex justify-center items-center gap-3">
-          <Plane className="text-accent" size={32} /> فحص التأشيرات الدولية
+        <h2 className="text-2xl md:text-3xl font-bold text-primary flex justify-center items-center gap-3">
+          <Plane className="text-accent shrink-0" size={28} /> 
+          <span>فحص التأشيرات الدولية</span>
         </h2>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div>
-          <label className="block text-sm font-medium mb-2">جنسيتك</label>
-          <select className="w-full p-3 border rounded-lg bg-gray-50" onChange={(e) => setPassport(e.target.value)}>
-            <option value="">اختر جنسيتك...</option>
-            {countries.map((c) => <option key={c.code} value={c.code}>{c.name_ar}</option>)}
-          </select>
+      <div className="grid grid-cols-1 gap-6 mb-8">
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+            <Globe2 size={16} className="text-accent" />
+            جنسيتك (جواز السفر)
+          </label>
+          <div className="relative">
+            <select 
+              className="w-full p-4 border-2 border-gray-100 rounded-xl bg-gray-50 focus:border-accent focus:ring-0 transition-all appearance-none text-gray-800" 
+              onChange={(e) => setPassport(e.target.value)}
+              value={passport}
+            >
+              <option value="">اختر جنسيتك...</option>
+              {countries.map((c) => <option key={c.code} value={c.code}>{c.name_ar}</option>)}
+            </select>
+            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-400">
+              <span className="text-xs">▼</span>
+            </div>
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-2">الدولة المقصودة</label>
-          <select className="w-full p-3 border rounded-lg bg-gray-50" onChange={(e) => setDest(e.target.value)}>
-            <option value="">إلى أين تريد السفر؟</option>
-            {countries.map((c) => <option key={c.code} value={c.code}>{c.name_ar}</option>)}
-          </select>
+
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+            <MapPin size={16} className="text-accent" />
+            الدولة المقصودة
+          </label>
+          <div className="relative">
+            <select 
+              className="w-full p-4 border-2 border-gray-100 rounded-xl bg-gray-50 focus:border-accent focus:ring-0 transition-all appearance-none text-gray-800" 
+              onChange={(e) => setDest(e.target.value)}
+              value={dest}
+            >
+              <option value="">إلى أين تريد السفر؟</option>
+              {countries.map((c) => <option key={c.code} value={c.code}>{c.name_ar}</option>)}
+            </select>
+            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-gray-400">
+              <span className="text-xs">▼</span>
+            </div>
+          </div>
         </div>
       </div>
       
-      <button onClick={checkVisa} disabled={loading || !passport || !dest} className="w-full bg-accent text-white font-bold py-4 rounded-xl hover:bg-accent/90 disabled:opacity-50 flex items-center justify-center gap-2">
-        {loading ? <Loader2 className="animate-spin" size={20} /> : 'تحقق من التأشيرة'}
+      <button 
+        onClick={checkVisa} 
+        disabled={loading || !passport || !dest} 
+        className="w-full bg-accent text-white font-bold py-4 rounded-xl hover:bg-accent/90 disabled:opacity-50 shadow-lg shadow-accent/20 flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+      >
+        {loading ? <Loader2 className="animate-spin" size={20} /> : 'تحقق من التأشيرة الآن'}
       </button>
       
       {result && (
-        <div className={`mt-8 p-6 rounded-xl border-2 text-center ${getStatusColor(result.status)}`}>
-          <h3 className="text-2xl font-bold mb-2">{result.status}</h3>
-          <p>{result.note}</p>
-          {result.official_link && <a href={result.official_link} target="_blank" className="inline-block mt-4 text-accent hover:underline">زيارة الموقع الرسمي →</a>}
+        <div className={`mt-8 p-6 rounded-xl border-2 text-center animate-in fade-in slide-in-from-bottom-4 duration-500 ${getStatusColor(result.status)}`}>
+          <h3 className="text-2xl font-bold mb-2">
+            {result.status === 'visa_free' && 'إعفاء من التأشيرة'}
+            {result.status === 'visa_on_arrival' && 'تأشيرة عند الوصول'}
+            {result.status === 'e_visa' && 'تأشيرة إلكترونية'}
+            {result.status === 'visa_required' && 'تأشيرة مطلوبة'}
+            {result.status === 'check' && 'تحقق من السفارة'}
+          </h3>
+          <p className="text-lg">{result.note || result.requirements_ar}</p>
+          {result.official_link && (
+            <a 
+              href={result.official_link} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-block mt-4 px-6 py-2 bg-white/50 rounded-full text-accent font-semibold hover:bg-white transition-colors border border-accent/20"
+            >
+              زيارة الموقع الرسمي →
+            </a>
+          )}
         </div>
       )}
     </div>
