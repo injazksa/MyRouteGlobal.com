@@ -11,6 +11,10 @@ export const metadata: Metadata = {
   keywords: "هجرة، كندا، فيزا تركيا، شنغن، منح دراسية، حاسبة نقاط، تطوع، عمل، سفر",
 };
 
+export async function generateStaticParams() {
+  return [{ lang: 'ar' }, { lang: 'en' }];
+}
+
 export default function RootLayout({ 
   children, 
   params: { lang } 
