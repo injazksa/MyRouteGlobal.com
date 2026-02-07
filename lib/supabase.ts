@@ -25,7 +25,7 @@ export async function getVisaRules(passportCode: string, destinationCode: string
       .select('*')
       .eq('passport_code', passportCode)
       .eq('destination_code', destinationCode)
-      .maybeSingle(); // التحسين: استخدام maybeSingle
+      .maybeSingle();
     
     if (error) throw error;
     return data;
@@ -35,6 +35,7 @@ export async function getVisaRules(passportCode: string, destinationCode: string
   }
 }
 
+// دالة لجلب الأخبار (متوافقة مع المكونات القديمة)
 export async function getNews() {
   const { data, error } = await supabase
     .from('news_ticker')
@@ -47,6 +48,11 @@ export async function getNews() {
     return [];
   }
   return data || [];
+}
+
+// دالة لجلب الأخبار (متوافقة مع المكونات الجديدة)
+export async function getNewsTicker() {
+  return getNews();
 }
 
 export async function getScholarships() {

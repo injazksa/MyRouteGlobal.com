@@ -1,33 +1,60 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
-import { getNews } from '@/lib/supabase';
-import { Bell } from 'lucide-react';
+import { getNewsTicker } from '@/lib/supabase';
+import { Megaphone, X } from 'lucide-react';
 
 export default function NewsTicker() {
   const [news, setNews] = useState<any[]>([]);
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     const fetchNews = async () => {
-      const data = await getNews();
+      const data = await getNewsTicker();
       setNews(data);
     };
     fetchNews();
   }, []);
 
-  if (news.length === 0) return null;
+  if (!isVisible || news.length === 0) return null;
 
   return (
-    <div className="bg-red-600 text-white text-sm py-2 overflow-hidden relative flex items-center shadow-md">
-      <div className="bg-red-800 px-4 py-2 z-10 font-bold flex gap-2 items-center absolute right-0 h-full">
-        <Bell size={16} className="animate-pulse text-yellow-400" /> أخبار
-      </div>
-      <div className="animate-marquee whitespace-nowrap flex gap-10 pr-24 w-full">
-        {news.map((item, index) => (
-          <span key={index} className="inline-block px-4 border-l border-red-400/50">
-            {item.text_ar}
-          </span>
-        ))}
+    <div className="relative bg-primary text-white py-2 overflow-hidden border-b border-white/10 z-[60]">
+      <div className="container mx-auto px-4 flex items-center gap-4">
+        <div className="flex items-center gap-2 bg-accent text-primary px-3 py-1 rounded-lg font-black text-xs uppercase tracking-wider shrink-0 z-10 shadow-sm">
+          <Megaphone size={14} />
+          <span className="hidden sm:inline">آخر الأخبار</span>
+          <span className="sm:hidden">عاجل</span>
+        </div>
+
+        <div className="relative flex-1 overflow-hidden h-6">
+          <div className="absolute whitespace-nowrap animate-marquee flex items-center gap-12">
+            {news.map((item, index) => (
+              <div key={index} className="flex items-center gap-3 group cursor-pointer">
+                <span className="w-1.5 h-1.5 bg-accent rounded-full"></span>
+                <span className="text-sm font-bold hover:text-accent transition-colors">
+                  {item.text_ar} | {item.text_en}
+                </span>
+              </div>
+            ))}
+            {news.map((item, index) => (
+              <div key={`dup-${index}`} className="flex items-center gap-3 group cursor-pointer">
+                <span className="w-1.5 h-1.5 bg-accent rounded-full"></span>
+                <span className="text-sm font-bold hover:text-accent transition-colors">
+                  {item.text_ar} | {item.text_en}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <button 
+          onClick={() => setIsVisible(false)}
+          className="p-1 hover:bg-white/10 rounded-md transition-colors shrink-0"
+          aria-label="Close"
+        >
+          <X size={16} />
+        </button>
       </div>
     </div>
   );
